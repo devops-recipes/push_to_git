@@ -24,7 +24,7 @@ resources:
       branch: master
 
 jobs:
-  - name: u16_aarch32_tag
+  - name: push_to_git_ssh
     type: runSh
     triggerMode: parallel
     dependencyMode: strict
