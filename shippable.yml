@@ -39,14 +39,17 @@ jobs:
               env:
                 - RES_VER: "prod_release"
           script:
+            - echo $DR_SSH_META
+            - ls -al
+
 #            - export aws_access_key_id=$(shipctl get_integration_field "dr_ssh" "accessKey")
-            - |
-               pushd $(shipctl get_resource_meta "dr_ssh")
-                 ls -al
-                 shipctl get_json_value integration.json 'privateKey' > gh_ssh.key
-                 chmod 600 gh_ssh.key
-                 ssh-add gh_ssh.key
-               popd
+#            - |
+#               pushd $(shipctl get_resource_meta "dr_ssh")
+#                 ls -al
+#                 shipctl get_json_value integration.json 'privateKey' > gh_ssh.key
+#                 chmod 600 gh_ssh.key
+#                 ssh-add gh_ssh.key
+#               popd
 #            - pushd $(shipctl get_resource_state "$RES_REPO")
 #            - |
 #               git remote add up $GIT_PATH
