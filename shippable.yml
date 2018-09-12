@@ -32,25 +32,21 @@ jobs:
       - dr_ssh
     steps:
       - IN: push_to_git_repo
+        switch: off  #make sure this does not auto trigger, else it will go into infinite loop. We are using this as IN and pushing to it
       - TASK:
           name: push
           runtime:
             options:
               env:
-                - RES_VER: "prod_release"
+                - GIT_PATH: "git@github.com:devops-recipes/push_to_git.git"
           script:
-            - echo $DR_SSH_META
-            - cd integrations/dr_ssh
-            - ls -al
-
 #            - export aws_access_key_id=$(shipctl get_integration_field "dr_ssh" "accessKey")
-#            - |
-#               pushd $(shipctl get_resource_meta "dr_ssh")
-#                 ls -al
-#                 shipctl get_json_value integration.json 'privateKey' > gh_ssh.key
-#                 chmod 600 gh_ssh.key
-#                 ssh-add gh_ssh.key
-#               popd
+            - |
+               pushd integrations/dr_ssh
+                 chmod 600 dr_ssh_key
+                 ssh-add dr_ssh_key
+               popd
+            - echo $PUSH_TO_GIT_REPO_SOURCENAME
 #            - pushd $(shipctl get_resource_state "$RES_REPO")
 #            - |
 #               git remote add up $GIT_PATH
