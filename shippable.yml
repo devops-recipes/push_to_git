@@ -46,12 +46,12 @@ jobs:
                  chmod 600 dr_ssh_key
                  ssh-add dr_ssh_key
                popd
-            - echo $PUSH_TO_GIT_REPO_SOURCENAME
-#            - pushd $(shipctl get_resource_state "$RES_REPO")
-#            - |
-#               git remote add up $GIT_PATH
-#               git remote -v
-#               git checkout master
+            - pushd $(shipctl get_resource_state "push_to_git_repo")
+            - |
+               GIT_SOURCE=$(shipctl get_resource_version_key "push_to_git_repo" "sourceName")
+               git remote add up "git@github.com:"$GIT_SOURCE".git"
+               git remote -v
+               git checkout master
 #            - |
 #               git pull --tags
 #               if git tag -d $REL_VER; then
