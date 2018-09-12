@@ -1,0 +1,63 @@
+git_tag_temp: &git_tag
+  - |
+      # Git Tag & Release
+      IS_ALL_DEPLOY=$(shipctl get_resource_version_key "$deploy_state" "IS_ALL_DEPLOY")
+      if [ "$IS_ALL_DEPLOY" = true ]
+      then
+        echo "This was due to an ALL deploy, hence tag"
+        DATE=$(date '+%Y%m%d-%H%M%S%Z')
+        TAG_TEXT="${TAG_PREFIX}deploy-${DATE}"
+        REPO_COMMIT=$(shipctl get_resource_version_key "$image_res" "versionName")
+        RELEASE_URL="https://api.github.com/repos/${SERVER_CODE_REPO_SOURCENAME}/releases"
+        # relying on server_code_repo.sourceName on line above
+        curl $RELEASE_URL -s -X POST -H "Authorization: Token ${GITHUB_TOKEN}" --data "{\"name\":\"${TAG_TEXT}\", \"tag_name\":\"${TAG_TEXT}\", \"target_commitish\": \"${REPO_COMMIT}\", \"body\":\"Deployed by ${WORKFLOW_TRIGGERED_BY_USER}\"}"
+      else
+        echo "This was not due to an ALL deploy, hence skip tagging"
+      fi
+
+resources:
+  - name: push_to_git_repo
+    type: gitRepo
+    integration: dr_gh
+    pointer:
+      sourceName: devops-recipes/push_to_git
+      branch: master
+
+jobs:
+  - name: u16_aarch32_tag
+    type: runSh
+    triggerMode: parallel
+    dependencyMode: strict
+    integrations:
+      - dr_ssh
+    steps:
+      - IN: push_to_git_repo
+      - TASK:
+          name: push
+          runtime:
+            options:
+              env:
+                - RES_VER: "prod_release"
+          script:
+#            - export aws_access_key_id=$(shipctl get_integration_field "dr_ssh" "accessKey")
+            - |
+               pushd $(shipctl get_resource_meta "dr_ssh")
+                 ls -al
+                 shipctl get_json_value integration.json 'privateKey' > gh_ssh.key
+                 chmod 600 gh_ssh.key
+                 ssh-add gh_ssh.key
+               popd
+#            - pushd $(shipctl get_resource_state "$RES_REPO")
+#            - |
+#               git remote add up $GIT_PATH
+#               git remote -v
+#               git checkout master
+#            - |
+#               git pull --tags
+#               if git tag -d $REL_VER; then
+#                 git push --delete up $REL_VER
+#               fi
+#            - |
+#               git checkout $REPO_COMMIT
+#               git tag $REL_VER
+#               git push up $REL_VER
