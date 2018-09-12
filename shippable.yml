@@ -52,6 +52,12 @@ jobs:
                git remote add up "git@github.com:"$GIT_SOURCE".git"
                git remote -v
                git checkout master
+            - |
+               echo FOO >> newfile  #this creates a change that we can commit and push
+               git add .
+               git commit -a -m"adding a change"
+               git push up master
+
 #            - |
 #               git pull --tags
 #               if git tag -d $REL_VER; then
