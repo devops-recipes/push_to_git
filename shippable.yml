@@ -40,6 +40,7 @@ jobs:
                 - RES_VER: "prod_release"
           script:
             - echo $DR_SSH_META
+            - cd integrations
             - ls -al
 
 #            - export aws_access_key_id=$(shipctl get_integration_field "dr_ssh" "accessKey")
